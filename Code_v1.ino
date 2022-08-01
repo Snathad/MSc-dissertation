@@ -9,6 +9,10 @@
 #define RightRelay 2
 #define LeftRelay 3
 #define Power (4)
+
+int ESflag = 0 ;
+int i;
+
 void setup() {
   pinMode(Green,OUTPUT);
   pinMode(Blue,OUTPUT);
@@ -19,7 +23,7 @@ void setup() {
   pinMode (LeftRelay,OUTPUT);
   pinMode (RightRelay, OUTPUT);
   pinMode (Power, INPUT);
-  int ESflag = 0 ;
+  
 
 }
 
@@ -52,39 +56,51 @@ void loop() {
 }
 
 int left (){
-  int i;
   for (i=0; i=100; i++){
     digitalWrite(Blue, HIGH);
     digitalWrite(RightRelay, HIGH);
+    if (Emergency == HIGH){
+      ESflag=1;
+      return(0);
+    }
   }
   return 0;
 }
 
 int up (){
-  int i;
   for (i=0; i=100; i++){
     digitalWrite(Blue, HIGH);
     digitalWrite(Yellow, HIGH);
     digitalWrite(RightRelay, HIGH);
     digitalWrite(LeftRelay, HIGH);
+     if (Emergency == HIGH){
+      ESflag=1;
+      return(0);
+    }
   }
   return 0;
 }
 
 int down (){
-  int i;
   for (i=0; i=100; i++){
     digitalWrite(Green, HIGH);
     digitalWrite(TopRelay, HIGH);
+     if (Emergency == HIGH){
+      ESflag=1;
+      return(0);
+    }
   }
   return 0;
 }
 
 int right (){
-  int i;
   for (i=0; i=100;i++){
     digitalWrite(Yellow, HIGH);
     digitalWrite(LeftRelay, HIGH);
+     if (Emergency == HIGH){
+      ESflag=1;
+      return(0);
+    } 
   }
   return 0;
 }

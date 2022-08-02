@@ -45,7 +45,6 @@ void setup() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop() {
   //Start by setting all outputs and the emergency stop flag as low
- int ESflag=0;
   digitalWrite(Blue, LOW);
   digitalWrite(Yellow, LOW);
   digitalWrite(Green, LOW);
@@ -54,10 +53,10 @@ void loop() {
   digitalWrite(RightRelay, LOW);
   
   // Enable system if power is switched on.
-  if (Power == HIGH) {
+  if (digitalRead(Power) == HIGH) {
     
     //if at any point the power is on and the emergency stop is triggered set the ESflag high.
-    if (Emergency == HIGH){
+    if (digitalRead(Emergency) == HIGH){
       ESflag=1;
       }
 
@@ -77,6 +76,8 @@ void loop() {
     //if the power switch is not active turn off the error state flag
 } else {
   ESflag = 0;
+  digitalWrite(Red,LOW);  
+  
 }
 }
 
@@ -86,7 +87,7 @@ int left (){
   for (i=0; i=100; i++){
     digitalWrite(Blue, HIGH);
     digitalWrite(RightRelay, HIGH);
-    if (Emergency == HIGH){
+    if (digitalRead(Emergency) == HIGH){
       ESflag=1;
       return(0);
     }
@@ -102,7 +103,7 @@ int up (){
     digitalWrite(Yellow, HIGH);
     digitalWrite(RightRelay, HIGH);
     digitalWrite(LeftRelay, HIGH);
-     if (Emergency == HIGH){
+     if (digitalRead(Emergency) == HIGH){
       ESflag=1;
       return(0);
     }
@@ -116,7 +117,7 @@ int down (){
   for (i=0; i=100; i++){
     digitalWrite(Green, HIGH);
     digitalWrite(TopRelay, HIGH);
-     if (Emergency == HIGH){
+     if (digitalRead(Emergency) == HIGH){
       ESflag=1;
       return(0);
     }
@@ -130,7 +131,7 @@ int right (){
   for (i=0; i=100;i++){
     digitalWrite(Yellow, HIGH);
     digitalWrite(LeftRelay, HIGH);
-     if (Emergency == HIGH){
+     if (digitalRead(Emergency) == HIGH){
       ESflag=1;
       return(0);
     } 

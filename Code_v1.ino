@@ -2,7 +2,7 @@
 //B320-RAI Robotics MSc Heriot-Watt University//
 //2022 MSc Dissertation project//
 //Soft Actuators for a Social Robot//
-//Version 1.5//
+//Version 1.6//
 
 //This code is part of the work towards the above titled dissertation project. The focus of the project is the design and testing of soft-pneumatic actuators for a social robot.//
 //the actuators themselves are silicone structures that require air pressure to move. The air pressure is supplied by a compressor and allowed into the actuators by//
@@ -17,9 +17,9 @@
 #define Yellow 11     //Assigns the yellow led to its pin, this corresponds to the left actuator/relay.
 #define Red 10        //Assigns the red led to its pin, this corresponds to the emergency stop/ fault.
 #define Emergency 9   //The emergency stop button.
-#define TopRelay 1    //The pin assignment for the top actuator.
-#define RightRelay 2  //The pin assignment for the right actuator.  
-#define LeftRelay 3   //The pin assignment for the left actuator.
+#define TopRelay 1    //The pin assignment for the top actuator (Relay 4 on relay module).
+#define RightRelay 2  //The pin assignment for the right actuator (Relay 3 on relay module).  
+#define LeftRelay 3   //The pin assignment for the left actuator (Relay 2 on relay module).
 #define Power (4)     //The power switch (effectively a disable or reset for the emergency stop.
 
 int ESflag = 0 ;      //A flag for if the emergency stop has been pushed.
@@ -64,10 +64,14 @@ void loop() {
     digitalWrite(Red,LOW);
     if (resetflag == 0){
       left();
-      //right();
-      //up();
-      //down();
-      Serial.print(resetflag);
+      delay(500);
+      right();
+      delay(500);
+      up();
+      delay(500);
+      down();
+      delay(500);
+      //Serial.print(resetflag);
       }
     }
    
@@ -96,6 +100,11 @@ int left (){
   
     digitalWrite(Blue, HIGH);
     digitalWrite(RightRelay, HIGH);
+    digitalWrite(Yellow, LOW);
+    digitalWrite(Green, LOW);
+    digitalWrite(TopRelay, LOW);
+    digitalWrite(LeftRelay, LOW);
+  
 
    //Emergency stop
     if (digitalRead(Emergency) == HIGH && ESflag==0){
@@ -118,6 +127,9 @@ int up (){
     digitalWrite(Yellow, HIGH);
     digitalWrite(RightRelay, HIGH);
     digitalWrite(LeftRelay, HIGH);
+    digitalWrite(Green, LOW);
+    digitalWrite(TopRelay, LOW);
+  
 
     //Emergency stop
     if (digitalRead(Emergency) == HIGH && ESflag==0){
@@ -138,6 +150,10 @@ int down (){
   
     digitalWrite(Green, HIGH);
     digitalWrite(TopRelay, HIGH);
+    digitalWrite(Blue, LOW);
+    digitalWrite(Yellow, LOW);
+    digitalWrite(LeftRelay, LOW);
+    digitalWrite(RightRelay, LOW);
 
     //Emergency stop
     if (digitalRead(Emergency) == HIGH && ESflag==0){
@@ -158,6 +174,10 @@ int right (){
   
     digitalWrite(Yellow, HIGH);
     digitalWrite(LeftRelay, HIGH);
+    digitalWrite(Blue, LOW);
+    digitalWrite(Green, LOW);
+    digitalWrite(TopRelay, LOW);
+    digitalWrite(RightRelay, LOW);
 
     //Emergency Stop
     if (digitalRead(Emergency) == HIGH && ESflag==0){

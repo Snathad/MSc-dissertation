@@ -2,7 +2,7 @@
 //B320-RAI Robotics MSc Heriot-Watt University//
 //2022 MSc Dissertation project//
 //Soft Actuators for a Social Robot//
-//Version 1.3//
+//Version 1.5//
 
 //This code is part of the work towards the above titled dissertation project. The focus of the project is the design and testing of soft-pneumatic actuators for a social robot.//
 //the actuators themselves are silicone structures that require air pressure to move. The air pressure is supplied by a compressor and allowed into the actuators by//
@@ -10,7 +10,7 @@
 //Additionally there are indicators and operation switches, including an emergency stop button, that are coded in the file.//
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
-#include <stdio.h>
+#include <stdio.h>    //Include arduino library
 
 #define Green 13      //Assigns the green led to its pin, this corresponds to the top actuator/relay.
 #define Blue 12       //Assigns the blue led to its pin, this corresponds to the right actuator/relay.
@@ -23,12 +23,15 @@
 #define Power (4)     //The power switch (effectively a disable or reset for the emergency stop.
 
 int ESflag = 0 ;      //A flag for if the emergency stop has been pushed.
+int ESflagstate =0;   //A flag used for the latching of the emergency stop flag
+int resetflag = 0;    //A flag that allows for the system to be reset
 int i;                //A counter used in for loops.
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //The pin definitions.
 void setup() {
+  //Outputs (4x LED's, 3x Relays)
   pinMode(Green,OUTPUT);
   pinMode(Blue,OUTPUT);
   pinMode(Yellow,OUTPUT);
@@ -36,10 +39,13 @@ void setup() {
   pinMode (TopRelay, OUTPUT);
   pinMode (LeftRelay,OUTPUT);
   pinMode (RightRelay, OUTPUT);
-  
+
+  //Inputs (Power toggle switch, Emergency stop push button
   pinMode (Power, INPUT);
   pinMode (Emergency, INPUT);
 
+  //Begin serial mointor to track output states
+  Serial.begin(9600);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,89 +58,137 @@ void loop() {
   digitalWrite(LeftRelay, LOW);
   digitalWrite(RightRelay, LOW);
   
-  // Enable system if power is switched on.
-  if (digitalRead(Power) == HIGH) {
-    
-    //if at any point the power is on and the emergency stop is triggered set the ESflag high.
-    if (digitalRead(Emergency) == HIGH){
-      ESflag=1;
-      }
-
-    //if the ESflag is high set all outputs low except the red led to indicate an error state.  
-    if (ESflag == 1) {
-      digitalWrite(Red,HIGH);
-      digitalWrite(TopRelay, LOW);
-      digitalWrite(LeftRelay, LOW);
-      digitalWrite(RightRelay, LOW);
-      }
-      else {
-
-      //if the error flag is not on, the red led will not be either  
-      digitalWrite(Red,LOW);  
-    }
-
-    //if the power switch is not active turn off the error state flag
-} else {
-  ESflag = 0;
-  digitalWrite(Red,LOW);  
   
-}
-}
+  // Enable system if power is switched on.
+  if (digitalRead(Power) == HIGH && digitalRead(Emergency) == LOW && ESflag==0) {
+    digitalWrite(Red,LOW);
+    if (resetflag == 0){
+      left();
+      //right();
+      //up();
+      //down();
+      Serial.print(resetflag);
+      }
+    }
+   
+    //if at any point the power is on and the emergency stop is triggered set the ESflag high.
+    if (digitalRead(Emergency) == HIGH && ESflag==0){
+      ESflag=1;
+      ESflagstate=!ESflagstate;
+      }
+
+    //If system is turned off after ES is triggered, reset ES
+    if (ESflag==1 and digitalRead(Emergency)==LOW and digitalRead(Power)==LOW){
+      digitalWrite(Red,LOW);
+      ESflag=0;
+      Serial.print("I am banana");
+     }
+
+    //Go to ES sub function when flag is active.
+    if (ESflagstate==HIGH){  
+      Efunct();
+      }
+    }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Moves the robot to the left by triggering the artificial muscles on its right and activates the corresponding LED
 int left (){
-  for (i=0; i=100; i++){
+  
     digitalWrite(Blue, HIGH);
     digitalWrite(RightRelay, HIGH);
-    if (digitalRead(Emergency) == HIGH){
+
+   //Emergency stop
+    if (digitalRead(Emergency) == HIGH && ESflag==0){
       ESflag=1;
-      return(0);
-    }
-  }
+      ESflagstate=!ESflagstate;
+      }
+      
+    if (ESflagstate==HIGH){  
+      Efunct();
+     }
+  
   return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Moves the robot up by triggering the artificial muscles on its bottom and activates the corresponding LED's
 int up (){
-  for (i=0; i=100; i++){
+ 
     digitalWrite(Blue, HIGH);
     digitalWrite(Yellow, HIGH);
     digitalWrite(RightRelay, HIGH);
     digitalWrite(LeftRelay, HIGH);
-     if (digitalRead(Emergency) == HIGH){
+
+    //Emergency stop
+    if (digitalRead(Emergency) == HIGH && ESflag==0){
       ESflag=1;
-      return(0);
-    }
-  }
+      ESflagstate=!ESflagstate;
+      }
+      
+    if (ESflagstate==HIGH){  
+      Efunct();
+      }
+  
   return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Moves the robot down by triggering the artificial muscle on its top and activates the corresponding LED
 int down (){
-  for (i=0; i=100; i++){
+  
     digitalWrite(Green, HIGH);
     digitalWrite(TopRelay, HIGH);
-     if (digitalRead(Emergency) == HIGH){
+
+    //Emergency stop
+    if (digitalRead(Emergency) == HIGH && ESflag==0){
       ESflag=1;
-      return(0);
-    }
-  }
+      ESflagstate=!ESflagstate;
+      }
+      
+    if (ESflagstate==HIGH){  
+      Efunct();
+      }
+      
   return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Moves the robot left by triggering the artificial muscles on its right and activates the corresponding LED
 int right (){
-  for (i=0; i=100;i++){
+  
     digitalWrite(Yellow, HIGH);
     digitalWrite(LeftRelay, HIGH);
-     if (digitalRead(Emergency) == HIGH){
+
+    //Emergency Stop
+    if (digitalRead(Emergency) == HIGH && ESflag==0){
       ESflag=1;
-      return(0);
-    } 
-  }
+      ESflagstate=!ESflagstate;
+      }
+  
+    if (ESflagstate==HIGH){  
+      Efunct();
+     }
+  
   return 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int Efunct (){
+   //This is the emergency stop function. When activated during any of the other functions it will cease all outputs and turn on the warning indicator
+    if (digitalRead(Power)==HIGH){
+      digitalWrite(Red,HIGH);
+      Serial.print("red");
+      digitalWrite(TopRelay, LOW);
+      digitalWrite(LeftRelay, LOW);
+      digitalWrite(RightRelay, LOW);
+      digitalWrite(Blue, LOW);
+      digitalWrite(Yellow, LOW);
+      digitalWrite(Green, LOW);
+    }
+    
+  //If the system has been reset, return to original program.      
+  if (ESflag=0 && digitalRead(Power)==HIGH){ 
+    return 0;
+  }
+}
+  
